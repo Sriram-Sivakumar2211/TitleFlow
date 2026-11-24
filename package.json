@@ -1,0 +1,10 @@
+{
+  "name": "titleflow-infrastructure",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Digital Title & Escrow Closing Infrastructure",
+  "scripts": {
+    "build": "cd frontend && npm install && npm run build",
+    "start": "python -m uvicorn app.main:app --app-dir backend --port 8000"
+  }
+}
