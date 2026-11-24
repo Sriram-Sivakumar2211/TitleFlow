@@ -22,14 +22,21 @@ async function handleResponse<T>(res: Response): Promise<T> {
     let errorDetail = `Request failed with status ${res.status}`;
     try {
       const errJson = await res.json();
-      if (errJson.detail) {
+      if (errJson && errJson.detail) {
         if (typeof errJson.detail === 'string') {
           errorDetail = errJson.detail;
         } else if (Array.isArray(errJson.detail)) {
           errorDetail = errJson.detail.map((e: any) => e.msg || e.message).join(', ');
         }
+      } else if (errJson && errJson.message) {
+        errorDetail = errJson.message;
       }
-    } catch (_) {}
+    } catch (_) {
+      try {
+        const text = await res.text();
+        if (text) errorDetail = `${errorDetail}: ${text.slice(0, 150)}`;
+      } catch (__) {}
+    }
     throw new Error(errorDetail);
   }
   return res.json();

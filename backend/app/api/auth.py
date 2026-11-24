@@ -72,17 +72,20 @@ def login(credentials: UserLogin, response: Response, request: Request, db: Sess
         secure=False # Set to True in HTTPS production
     )
 
-    # Audit log
-    audit = AuditLog(
-        user_id=user.id,
-        action="USER_LOGIN",
-        entity_type="USER",
-        entity_id=user.id,
-        details={"email": user.email},
-        ip_address=request.client.host if request.client else None
-    )
-    db.add(audit)
-    db.commit()
+    # Audit log (non-blocking if audit record write fails)
+    try:
+        audit = AuditLog(
+            user_id=user.id,
+            action="USER_LOGIN",
+            entity_type="USER",
+            entity_id=user.id,
+            details={"email": user.email},
+            ip_address=request.client.host if request.client else None
+        )
+        db.add(audit)
+        db.commit()
+    except Exception as e:
+        db.rollback()
 
     return Token(
         access_token=access_token,

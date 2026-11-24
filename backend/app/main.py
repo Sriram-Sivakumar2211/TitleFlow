@@ -1,9 +1,22 @@
 import os
+import sys
+import logging
+from pathlib import Path
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+
+# Ensure backend root and parent directories are in sys.path
+_current_file = Path(__file__).resolve()
+_backend_dir = _current_file.parent.parent
+_project_root = _backend_dir.parent
+
+for _p in [str(_backend_dir), str(_project_root)]:
+    if _p not in sys.path:
+        sys.path.insert(0, _p)
+
 from app.core.config import settings
-from app.core.database import engine, Base, SessionLocal
+from app.core.database import engine, Base, SessionLocal, init_db_if_needed
 from app.models import (
     User, UserRole, Property, PropertyType, Transaction, TransactionStatus,
     Document, DocumentCategory, DocumentProcessingStatus, ExtractionResult,
@@ -12,8 +25,10 @@ from app.models import (
 from app.core.security import get_password_hash
 from app.api import auth, dashboard, properties, transactions, documents, risks, users
 
+logger = logging.getLogger("titleflow")
+
 def seed_sample_data():
-    """Seeds realistic sample accounts and initial records for development"""
+    """Seeds realistic sample accounts and initial records for development/demo"""
     db = SessionLocal()
     try:
         # Check if users already seeded
@@ -128,15 +143,24 @@ def seed_sample_data():
             db.commit()
 
             # Run initial risk check for sample transactions
-            from ai_engine.analysis.risk_engine import evaluate_transaction_risks
-            evaluate_transaction_risks(txn1.id, db)
-            evaluate_transaction_risks(txn2.id, db)
+            try:
+                from ai_engine.analysis.risk_engine import evaluate_transaction_risks
+                evaluate_transaction_risks(txn1.id, db)
+                evaluate_transaction_risks(txn2.id, db)
+            except Exception as e:
+                logger.warning(f"Initial risk engine seeding skipped: {e}")
+    except Exception as e:
+        logger.error(f"Error seeding sample data: {e}")
+        db.rollback()
     finally:
         db.close()
 
-# Ensure tables are created and seeded on module import
-Base.metadata.create_all(bind=engine)
-seed_sample_data()
+# Ensure tables are created and seeded safely
+try:
+    init_db_if_needed()
+    seed_sample_data()
+except Exception as exc:
+    logger.error(f"Database bootstrap warning: {exc}")
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -144,10 +168,10 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# CORS Middleware
+# CORS Middleware with universal fallback for Vercel preview and production domains
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
