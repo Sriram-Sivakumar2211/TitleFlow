@@ -31,11 +31,22 @@ JSONType = JSON().with_variant(postgresql.JSONB, "postgresql")
 _db_initialized = False
 
 def init_db_if_needed():
-    """Initializes tables on demand if not yet initialized"""
+    """Initializes tables on demand if not yet initialized, and runs lightweight schema sync"""
     global _db_initialized
     if not _db_initialized:
         try:
             Base.metadata.create_all(bind=engine)
+            # Lightweight schema check for sqlite to add new columns if existing local db file exists
+            if settings.DATABASE_URL.startswith("sqlite"):
+                with engine.connect() as conn:
+                    try:
+                        conn.execute("ALTER TABLE users ADD COLUMN organization_id VARCHAR(36) REFERENCES organizations(id)")
+                    except Exception:
+                        pass
+                    try:
+                        conn.execute("ALTER TABLE users ADD COLUMN job_title VARCHAR(150)")
+                    except Exception:
+                        pass
             _db_initialized = True
         except Exception as e:
             logger.error(f"Error creating database tables: {e}")

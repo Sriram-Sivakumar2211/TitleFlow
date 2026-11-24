@@ -23,7 +23,7 @@ from app.models import (
     RiskFinding, RiskSeverity, FindingReviewStatus, AuditLog
 )
 from app.core.security import get_password_hash
-from app.api import auth, dashboard, properties, transactions, documents, risks, users
+from app.api import auth, dashboard, properties, transactions, documents, risks, users, organizations
 
 logger = logging.getLogger("titleflow")
 
@@ -186,6 +186,7 @@ app.include_router(transactions.router, prefix=api_v1)
 app.include_router(documents.router, prefix=api_v1)
 app.include_router(risks.router, prefix=api_v1)
 app.include_router(users.router, prefix=api_v1)
+app.include_router(organizations.router, prefix=api_v1)
 
 @app.get("/health", tags=["System"])
 @app.get(f"{api_v1}/health", tags=["System"])

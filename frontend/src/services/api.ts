@@ -62,6 +62,31 @@ export const api = {
     return handleResponse<User>(res);
   },
 
+  async onboard(payload: any) {
+    const res = await fetch(`${API_BASE}/organizations/onboarding`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    return handleResponse<{
+      access_token: string;
+      token_type: string;
+      user_id: string;
+      user_email: string;
+      full_name: string;
+      organization_id: string;
+      organization_name: string;
+      org_type: string;
+    }>(res);
+  },
+
+  async getCurrentOrganization() {
+    const res = await fetch(`${API_BASE}/organizations/current`, {
+      headers: getAuthHeaders(),
+    });
+    return handleResponse<any>(res);
+  },
+
   async getMe() {
     const res = await fetch(`${API_BASE}/auth/me`, {
       headers: getAuthHeaders(),

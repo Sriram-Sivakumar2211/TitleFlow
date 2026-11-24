@@ -110,6 +110,34 @@ dist/assets/index-Bmt8BZ92.js   314.14 kB │ gzip: 82.86 kB
 
 ---
 
+## Milestone 6: Premium Customer Acquisition & Onboarding (Completed)
+
+- [x] **Public Enterprise Landing Page (`/`)**:
+  - Sticky navigation bar with responsive mobile menu, direct links to Platform, Solutions, How It Works, Security, Sign In, and Get Started.
+  - Hero Section featuring headline *"Real Estate Closings. Reimagined."*, dual CTAs, and a component-driven realistic application dashboard preview (`HeroDashboardPreview.tsx`).
+  - Core Value Proposition showcase highlighting Centralized Operations, Document Visibility, Reduced Manual Coordination, and Secure Transaction Workflows.
+  - Platform Capabilities grid detailing AI-Assisted Title Review, Secure Document Management, Escrow Workflow Management, Wire Fraud Defense, RON, and Audit Trail.
+  - Interactive 4-step workflow lifecycle timeline (`01 Create Workspace` -> `02 Add Transactions` -> `03 Review & Coordinate` -> `04 Complete Closing`).
+  - Security architecture breakdown with cryptographic Argon2id hashing, JWT validation, and multi-tenant isolation.
+  - Audience solutions (Title Agencies, Law Firms, Lenders).
+  - Complete navigation footer with copyright and subpages.
+
+- [x] **Complete Multi-Step Business Onboarding (`/signup`, `/onboarding`)**:
+  - Step 1: Legal Name, Business Email, Direct Phone, Job Title, Password with visibility toggle, and Terms acceptance.
+  - Step 2: Organization Name, Organization Type selector (Title Company, Escrow Company, Law Firm, Lender, etc.), Website, and Geographic office details.
+  - Step 3: Workspace configuration (team scale, expected monthly closing volume, primary workflow focus, team invitations).
+  - Step 4: Summary Review screen with back/forward navigation and full data persistence.
+  - Step 5: Provisioning Success screen (`/onboarding/success`) with organization profile, security status, and seamless redirection to the active `/dashboard`.
+
+- [x] **Backend & Database Infrastructure**:
+  - Implemented `Organization` and `OrganizationType` SQLAlchemy models.
+  - Extended `User` model with `organization_id` foreign key and `job_title`.
+  - Added `/api/v1/organizations/onboarding` endpoint to atomically provision organizations and workspace owner accounts.
+  - Added `/api/v1/organizations/current` endpoint for tenant workspace lookup.
+  - Created automated test `tests/test_onboarding.py` verifying onboarding lifecycle and duplicate email prevention (100% test pass rate across all 9 tests).
+
+---
+
 ## Known Issues & Engineering Assumptions
 
 1. **AI Provider Fallback Mode**: The application runs by default in `fallback` mode using the deterministic regex and named pattern extractor. This ensures complete functionality and testing without requiring third-party API keys. An external LLM provider interface (`ExternalLLMProvider`) is implemented and ready to connect to OpenAI or Google Gemini when an API key is supplied in `.env`.

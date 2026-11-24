@@ -36,6 +36,8 @@ class UserLogin(BaseModel):
 
 class UserResponse(UserBase):
     id: str
+    organization_id: Optional[str] = None
+    job_title: Optional[str] = None
     is_active: bool
     created_at: datetime
     updated_at: datetime

@@ -6,9 +6,77 @@ export interface User {
   full_name: string;
   role: UserRole;
   phone?: string;
+  organization_id?: string;
+  job_title?: string;
   is_active: boolean;
   created_at: string;
   updated_at: string;
+}
+
+export type OrganizationType = 
+  | 'TITLE_COMPANY' 
+  | 'ESCROW_COMPANY' 
+  | 'LAW_FIRM' 
+  | 'LENDER' 
+  | 'REAL_ESTATE_AGENCY' 
+  | 'OTHER';
+
+export interface Organization {
+  id: string;
+  name: string;
+  org_type: OrganizationType;
+  website?: string;
+  business_email?: string;
+  phone?: string;
+  country: string;
+  state?: string;
+  city?: string;
+  address?: string;
+  postal_code?: string;
+  team_size?: string;
+  monthly_closing_volume?: string;
+  primary_use_case?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface OnboardingPayload {
+  account: {
+    full_name: string;
+    email: string;
+    password: string;
+    phone?: string;
+    job_title?: string;
+  };
+  organization: {
+    name: string;
+    org_type: OrganizationType;
+    website?: string;
+    business_email?: string;
+    phone?: string;
+    country: string;
+    state?: string;
+    city?: string;
+    address?: string;
+    postal_code?: string;
+  };
+  workspace: {
+    team_size: string;
+    monthly_closing_volume: string;
+    primary_use_case?: string;
+    invited_team_members?: string[];
+  };
+}
+
+export interface OnboardingResult {
+  access_token: string;
+  token_type: string;
+  user_id: string;
+  user_email: string;
+  full_name: string;
+  organization_id: string;
+  organization_name: string;
+  org_type: string;
 }
 
 export type PropertyType = 

@@ -26,11 +26,14 @@ class User(Base):
     full_name = Column(String(255), nullable=False)
     role = Column(SQLEnum(UserRole), default=UserRole.CLOSING_AGENT, nullable=False)
     phone = Column(String(50), nullable=True)
+    organization_id = Column(String(36), ForeignKey("organizations.id", ondelete="SET NULL"), nullable=True)
+    job_title = Column(String(150), nullable=True)
     is_active = Column(Boolean, default=True, nullable=False)
     created_at = Column(DateTime(timezone=True), default=utc_now, nullable=False)
     updated_at = Column(DateTime(timezone=True), default=utc_now, onupdate=utc_now, nullable=False)
 
     # Relationships
+    organization = relationship("Organization", back_populates="members")
     closing_transactions = relationship("Transaction", foreign_keys="Transaction.closing_agent_id", back_populates="closing_agent")
     buyer_transactions = relationship("Transaction", foreign_keys="Transaction.buyer_id", back_populates="buyer")
     seller_transactions = relationship("Transaction", foreign_keys="Transaction.seller_id", back_populates="seller")
